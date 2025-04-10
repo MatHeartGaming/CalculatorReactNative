@@ -1,147 +1,188 @@
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react';
 
 enum Operator {
     add = '+',
     subtract = '-',
-    multiply = 'X',
-    divide = '/',
+    multiply = 'x',
+    divide = '÷',
+    undefined = ''
 }
+
+
+
 
 export const useCalculator = () => {
 
-    const [formula, setFormula] = useState<string>('');
-    const [number, setNumber] = useState<string>('0');
-    const [prevNumber, setPrevNumber] = useState<string>('0');
+    const [formula, setFormula] = useState('');
 
-    const lastOperation = useRef<Operator>(Operator.add);
+    const [number, setNumber] = useState('0');
+    const [prevNumber, setPrevNumber] = useState('0');
+
+    const lastOperation = useRef<Operator>(Operator.undefined);
 
     useEffect(() => {
-        if (lastOperation.current ) {
+        if (lastOperation.current) {
             const firstFormulaPart = formula.split(' ').at(0);
-            setFormula( `${firstFormulaPart} ${ lastOperation.current } ${number}` );
+            setFormula(`${firstFormulaPart} ${lastOperation.current} ${number}`);
         } else {
             setFormula(number);
         }
 
-    }, [ number ]);
+    }, [number]);
+
 
     useEffect(() => {
         const subResult = calculateSubResult();
-        setPrevNumber(subResult.toString());
-    }, [ formula ])
+        setPrevNumber(`${subResult}`);
+    }, [formula])
+
+
+
+
+
 
     const clean = () => {
         setNumber('0');
         setPrevNumber('0');
+        lastOperation.current = Operator.undefined;
         setFormula('');
-        lastOperation.current = Operator.add;
-    }
+    };
 
+    // Borrar el último número
     const deleteOperation = () => {
-        if (number.length === 1) {
-            setNumber('0');
-            return;
+
+        let currentSign = '';
+        let temporalNumber = number;
+
+        if (number.includes('-')) {
+            currentSign = '-';
+            temporalNumber = number.substring(1); // 88
         }
-        const newNumber = number.slice(0, -1);
-        setNumber(newNumber);
-    }
+
+        if (temporalNumber.length > 1) {
+            return setNumber(currentSign + temporalNumber.slice(0, -1)); // 
+        }
+
+        setNumber('0');
+
+    };
+
 
     const toggleSign = () => {
         if (number.includes('-')) {
-            setNumber(number.replace('-', ''));
-            return;
+            return setNumber(number.replace('-', ''));
         }
+
         setNumber('-' + number);
-    }
+    };
+
 
     const buildNumber = (numberString: string) => {
+
         if (number.includes('.') && numberString === '.') return;
+
         if (number.startsWith('0') || number.startsWith('-0')) {
+
+            // Punto decimal
             if (numberString === '.') {
                 return setNumber(number + numberString);
             }
 
-            // Evaluar si es otro 0
+            // Evaluar si es otro cero y no hay punto
             if (numberString === '0' && number.includes('.')) {
                 return setNumber(number + numberString);
             }
 
-            // Evaular si ed diferente de 0, no hay punto, y es el primer numero
+            // Evaluar si es diferente de cero, no hay punto, y es el primer numero
             if (numberString !== '0' && !number.includes('.')) {
                 return setNumber(numberString);
             }
 
-            // Evitar multiples 0
+            // Evitar 000000.00
             if (numberString === '0' && !number.includes('.')) {
                 return;
             }
-            return setNumber( number + numberString );
+
+            return setNumber(number + numberString);
         }
-        setNumber( number + numberString );
-    }
+
+
+        setNumber(number + numberString);
+
+    };
 
     const setLastNumber = () => {
+        calculateResult();
+
         if (number.endsWith('.')) {
             setPrevNumber(number.slice(0, -1));
         } else {
             setPrevNumber(number);
         }
+
         setNumber('0');
-    }
+    };
 
     const divideOperation = () => {
         setLastNumber();
         lastOperation.current = Operator.divide;
-    }
+    };
 
     const multiplyOperation = () => {
         setLastNumber();
         lastOperation.current = Operator.multiply;
-    }
-
-    const addOperation = () => {
-        setLastNumber();
-        lastOperation.current = Operator.add;
-    }
+    };
 
     const subtractOperation = () => {
         setLastNumber();
         lastOperation.current = Operator.subtract;
-    }
+    };
+
+    const addOperation = () => {
+        setLastNumber();
+        lastOperation.current = Operator.add;
+    };
+
 
     const calculateResult = () => {
+
         const result = calculateSubResult();
-        setFormula(result.toString());
+        setFormula(`${result}`);
+
+        lastOperation.current = Operator.undefined;
         setPrevNumber('0');
-        lastOperation.current = Operator.add;
-    }
+    };
 
     const calculateSubResult = (): number => {
+
         const [firstValue, operation, secondValue] = formula.split(' ');
 
         const num1 = Number(firstValue);
-        const num2 = Number(secondValue);
+        const num2 = Number(secondValue); //NaN
 
-        if ( isNaN(num2)) return num1;
+        if (isNaN(num2)) return num1;
 
         switch (operation) {
+
             case Operator.add:
                 return num1 + num2;
 
             case Operator.subtract:
                 return num1 - num2;
+
             case Operator.multiply:
                 return num1 * num2;
+
             case Operator.divide:
-                if (num2 === 0) {
-                    setFormula('Error');
-                    return 0;
-                }
                 return num1 / num2;
+
             default:
-                throw new Error('Oprator not implemented');
+                throw new Error('Operation not implemented');
         }
-    }
+
+    };
+
+
 
     return {
         // Properties
@@ -151,13 +192,14 @@ export const useCalculator = () => {
 
         // Methods
         buildNumber,
+        toggleSign,
         clean,
         deleteOperation,
-        toggleSign,
         divideOperation,
         multiplyOperation,
-        addOperation,
         subtractOperation,
+        addOperation,
         calculateResult,
-    }
+    };
 }
+
