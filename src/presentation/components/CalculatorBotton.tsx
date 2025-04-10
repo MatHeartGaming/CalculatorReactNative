@@ -7,7 +7,7 @@ interface Props {
     color?: string;
     doubleSize?: boolean;
     blackText?: boolean;
-    onPress: () => void;
+    onPress: (label: string) => void;
 }
 
 
@@ -16,9 +16,12 @@ export const CalculatorButton = ({
     color = colors.darkGray,
     doubleSize = false,
     blackText = false,
+    onPress,
 }: Props) => {
     return (
-        <Pressable style={ ({ pressed }) => ({
+        <Pressable 
+        onPress= {() => onPress(label)}
+        style={ ({ pressed }) => ({
             ...styles.button,
             opacity: pressed ? 0.8 : 1,
             width: doubleSize ? 180 : 80,
