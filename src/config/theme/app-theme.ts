@@ -32,5 +32,26 @@ export const styles = StyleSheet.create({
         fontSize: 40,
         textAlign: 'right',
         fontWeight: '300',
-    }
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 18,
+        paddingHorizontal: 10,
+    },
+    button: {
+        width: 80,
+        height: 80,
+        backgroundColor: colors.darkGray,
+        borderRadius: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 10
+    },
+    buttonText: {
+        color: colors.textPrimary,
+        textAlign: 'center',
+        fontSize: 30,
+        fontWeight: '300',
+    },
 })
